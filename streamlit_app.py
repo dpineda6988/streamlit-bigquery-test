@@ -20,9 +20,16 @@ def run_query(query):
     rows = [dict(row) for row in rows_raw]
     return rows
 
-rows = run_query("SELECT word FROM `bigquery-public-data.samples.shakespeare` LIMIT 10")
+query = """
+    SELECT name, SUM(number) as total_people
+    FROM `bigquery-public-data.usa_names.usa_1910_2013`
+    WHERE state = 'TX'
+    GROUP BY name, state
+    ORDER BY total_people DESC
+    LIMIT 20
+"""
 
-# Print results.
-st.write("Some wise words from Shakespeare:")
+rows = run_query(query)
+
 for row in rows:
-    st.write("✍️ " + row['word'])
+    st.write(row)
