@@ -21,12 +21,14 @@ def run_query(query):
     return rows
 
 query = """
-    SELECT name, SUM(number) as total_people
-    FROM `bigquery-public-data.usa_names.usa_1910_2013`
-    WHERE state = 'TX'
-    GROUP BY name, state
-    ORDER BY total_people DESC
-    LIMIT 20
+    SELECT year, country_name, indicator_name, value
+    FROM `bigquery-public-data.world_bank_wdi.indicators_data`
+    WHERE indicator_name IN (
+            'GDP per capita (current US$)',
+            'Fertility rate, total (births per woman)',
+            'Urban population',
+            'Rural population')
+    ORDER BY year DESC, country_name, indicator_name
 """
 
 rows = run_query(query)
