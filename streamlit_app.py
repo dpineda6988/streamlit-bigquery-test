@@ -1,7 +1,7 @@
 # streamlit_app.py
-
+#######################
+# Import libraries
 import streamlit as st
-st.set_page_config(layout="wide")
 import pandas as pd
 import plotly.express as px
 from google.oauth2 import service_account
@@ -10,6 +10,17 @@ import folium
 import folium.features
 import requests
 from streamlit_folium import st_folium, folium_static
+
+#######################
+# Page configuration
+st.set_page_config(
+    page_title="Population Growth Metrics Dashboard",
+    page_icon="🏂",
+    layout="wide",
+    initial_sidebar_state="expanded")
+
+#######################
+# Load data from the BigQuery database in a DataFrame
 
 # Create API client.
 credentials = service_account.Credentials.from_service_account_info(
@@ -95,36 +106,45 @@ query = """
         'Late-demographic dividend')
     ORDER BY year DESC, country_name, indicator_name
 """
-
 final_df = run_query(query)
 
+#######################
+# Sidebar
+with st.sidebar:
+    st.title('Population Metrics Dashboard')
+    # Create a list of the different indicators for the drop down menu
+    series_names = ['Fertility rate, total (births per woman)', 'GDP per capita (current US$)', ]
+    # Dropdown for indicator layers
+    selected_metric = st.selectbox("Select Metric", series_names)
+    # Slider to determine the year to be displayed
+    slider_year = st.slider('Select a year', 1960, 2019, 2019)
 
-# Create a list of the different indicators for the drop down menu
-series_names = ['Fertility rate, total (births per woman)', 'GDP per capita (current US$)', ]
+    current_df = final_df[final_df['year']==slider_year]
 
-# Dropdown for indicator layers
-selected_metric = st.selectbox("Select Metric", series_names)
+#######################
 
-# Slider to determine the year to be displayed
-slider_year = st.slider('Select a year', 1960, 2019, 2019)
 
-current_df = final_df[final_df['year']==slider_year]
+
+
+
+
+
 
 geojson_data = requests.get(
     "https://raw.githubusercontent.com/python-visualization/folium-example-data/main/world_countries.json"
 ).json()
 
-'''
+# Build the map
+map = folium.Map(location=(35,0), zoom_start=2, tiles='cartodb positron', min_zoom=1)
+
 for feature in geojson_data['features']:
     country_id = feature['id']
     feature['properties']['Fertility Rate'] = 'Fertility Rate: ' + str(current_df.loc[current_df['country_code']==country_id, 'Fertility rate, total (births per woman)'].values[0] if country_id in list(current_df['country_code']) else 'N/A')
     feature['properties']['GDP per capita (current US$)'] = 'GDP per capita (current US$): ' + str(current_df.loc[current_df['country_code']==country_id, 'GDP per capita (current US$)'].values[0] if country_id in list(current_df['country_code']) else 'N/A')
-'''
-# Build the map
-map = folium.Map(location=(30,0), zoom_start=2, tiles='cartodb positron', min_zoom=2)
 
 
-fertility_choro = folium.Choropleth(
+
+choropleth = folium.Choropleth(
     geo_data=geojson_data,
     name=selected_metric,
     data=current_df,
@@ -135,13 +155,17 @@ fertility_choro = folium.Choropleth(
     line_opacity=0.2,
     highlight=True,
     legend_name=selected_metric,
-    nan_fill_color='white'
+    nan_fill_color='white',
 ).add_to(map)
 
-fertility_choro.geojson.add_child(
-    folium.features.GeoJsonTooltip(['name'], labels=False)
+test = folium.GeoJson(geojson_data, style_function=lambda feature:{"fillColor":'0000',"fillOpacity":0, "weight":0.1},zoom_on_click=True).add_to(map)
+folium.Popup(parse_html=)
+test.add_child(
+    folium.features.GeoJsonTooltip(['name', 'Fertility Rate', 'GDP per capita (current US$)'], labels=False)
 )
 
 
+# Display the map in Streamlit
+st.components.v1.html(map._repr_html_(), width=1050, height=1000)
 
-st_map = st_folium(map,width=1050, height=800)
+
