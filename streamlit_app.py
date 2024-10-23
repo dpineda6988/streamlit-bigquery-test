@@ -159,7 +159,6 @@ choropleth = folium.Choropleth(
 ).add_to(map)
 
 test = folium.GeoJson(geojson_data, style_function=lambda feature:{"fillColor":'0000',"fillOpacity":0, "weight":0.1},zoom_on_click=True).add_to(map)
-folium.Popup(parse_html=)
 test.add_child(
     folium.features.GeoJsonTooltip(['name', 'Fertility Rate', 'GDP per capita (current US$)'], labels=False)
 )
