@@ -9,7 +9,7 @@ from google.cloud import bigquery
 import folium
 import folium.features
 import requests
-from streamlit_folium import st_folium
+from streamlit_folium import st_folium, folium_static
 
 # Create API client.
 credentials = service_account.Credentials.from_service_account_info(
@@ -110,7 +110,7 @@ slider_year = st.slider('Select a year', 1960, 2019, 2019)
 current_df = final_df[final_df['year']==slider_year]
 
 # Build the map
-map = folium.Map(location=(0,0), zoom_start=2, tiles='cartodb positron', min_zoom=2, width=750, height=400)
+map = folium.Map(location=(0,0), zoom_start=2, tiles='cartodb positron', min_zoom=3)
 
 geojson_data = requests.get(
     "https://raw.githubusercontent.com/python-visualization/folium-example-data/main/world_countries.json"
@@ -141,4 +141,4 @@ fertility_choro.geojson.add_child(
     folium.features.GeoJsonTooltip(['name', 'Fertility Rate','GDP per capita (current US$)'], labels=False)
 )
 
-st_map = st_folium(map, width=2000, height=1000)
+st_map = st_folium(map,width=1500, height=800)
