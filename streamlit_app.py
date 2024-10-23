@@ -110,7 +110,7 @@ slider_year = st.slider('Select a year', 1960, 2019, 2019)
 current_df = final_df[final_df['year']==slider_year]
 
 # Build the map
-map = folium.Map(location=(0,0), zoom_start=2, tiles='cartodb positron', min_zoom=2)
+map = folium.Map(location=(0,0), zoom_start=2, tiles='cartodb positron', min_zoom=2, width=750, height=400)
 
 geojson_data = requests.get(
     "https://raw.githubusercontent.com/python-visualization/folium-example-data/main/world_countries.json"
