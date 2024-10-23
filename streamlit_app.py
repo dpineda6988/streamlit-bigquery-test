@@ -142,5 +142,3 @@ fertility_choro.geojson.add_child(
 )
 
 st_map = st_folium(map, width=2000, height=1000)
-
-
