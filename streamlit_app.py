@@ -1,6 +1,7 @@
 # streamlit_app.py
 #######################
 # Import libraries
+import folium.elements
 import streamlit as st
 import pandas as pd
 from google.oauth2 import service_account
@@ -9,6 +10,7 @@ import folium
 import folium.features
 import requests
 from streamlit_folium import st_folium, folium_static
+from folium.utilities import JsCode
 
 #######################
 # Page configuration
@@ -30,7 +32,7 @@ client = bigquery.Client(credentials=credentials)
 # Perform query.
 # Uses st.cache_data to only rerun when the query changes or after 10 min.
 @st.cache_data()
-def run_query(query):
+def get_data(query):
     query_job = client.query(query)
     rows_raw = query_job.result()
     # Convert to list of dicts. Required for st.cache_data to hash the return value.
@@ -53,8 +55,22 @@ query = """
     WHERE indicator_name IN (
             'GDP per capita (current US$)',
             'Fertility rate, total (births per woman)',
-            'Urban population',
-            'Rural population')
+            'Urban population (% of total population)',
+            'Rural population (% of total population)',
+            'Population, female (% of total population)',
+            'Population, male (% of total population)',
+            'Population, total',
+            "Age dependency ratio (% of working-age population)",
+            'Age dependency ratio, old (% of working-age population)',
+            'Age dependency ratio, young (% of working-age population)',
+            'Human capital index (HCI) (scale 0-1)',
+            'Net migration',
+            'Labor force, total',
+            'Labor force with advanced education (% of total working-age population with advanced education)',
+            'Labor force with basic education (% of total working-age population with basic education)',
+            'Labor force with intermediate education (% of total working-age population with intermediate education)',
+            'Labor force, female (% of total labor force)'
+            )
     AND NOT country_name in (
         'Latin America & Caribbean',
         'Latin America & Caribbean (excluding high income)',
@@ -105,20 +121,22 @@ query = """
         'Late-demographic dividend')
     ORDER BY year DESC, country_name, indicator_name
 """
-final_df = run_query(query)
+# Load the data into a DataFrame
+data_df = get_data(query)
 
 #######################
 # Sidebar
 with st.sidebar:
     st.title('Population Metrics Dashboard')
     # Create a list of the different indicators for the drop down menu
-    series_names = ['Fertility rate, total (births per woman)', 'GDP per capita (current US$)', ]
-    # Dropdown for indicator layers
-    selected_metric = st.selectbox("Select Metric", series_names)
-    # Slider to determine the year to be displayed
-    slider_year = st.slider('Select a year', 1960, 2019, 2019)
+    series_names = ['Total Population', 'Fertility Rate (births per woman)', 'GDP per capita (current US$)', 'Age Dependency Ratio', 'Labor Force', 'Net Migration']
 
-    current_df = final_df[final_df['year']==slider_year]
+    # Dropdown for indicator layers
+    selection = st.selectbox("Select Metric", series_names)
+
+     # Slider to determine the year to be displayed
+    slider_year = st.slider('Select a year', 1960, 2019, 2019)
+    filtered_df = data_df[data_df['year']==slider_year]
 
 #######################
 
@@ -134,19 +152,33 @@ geojson_data = requests.get(
 ).json()
 
 # Build the map
-map = folium.Map(location=(35,0), zoom_start=2, tiles='cartodb positron', min_zoom=1)
+
+map = folium.Map(location=(35,0), zoom_start=2, tiles=folium.TileLayer(tiles='cartodb positron',no_wrap=True), max_bounds=True)
+
+match selection:
+    case "Total Population":
+        selected_metric = 'Population, total'
+    case "Fertility Rate (births per woman)":
+        selected_metric = 'Fertility rate, total (births per woman)'
+    case 'GDP per capita (current US$)':
+        selected_metric = 'GDP per capita (current US$)'
+    case 'Age Dependency Ratio':
+        selected_metric = 'Age dependency ratio (% of working-age population)'
+    case 'Labor Force':
+        selected_metric = 'Labor force, total'
+    case 'Net Migration':
+        selected_metric = 'Net migration'
 
 for feature in geojson_data['features']:
     country_id = feature['id']
-    feature['properties']['Fertility Rate'] = 'Fertility Rate: ' + str(current_df.loc[current_df['country_code']==country_id, 'Fertility rate, total (births per woman)'].values[0] if country_id in list(current_df['country_code']) else 'N/A')
-    feature['properties']['GDP per capita (current US$)'] = 'GDP per capita (current US$): ' + str(current_df.loc[current_df['country_code']==country_id, 'GDP per capita (current US$)'].values[0] if country_id in list(current_df['country_code']) else 'N/A')
-
+    feature['properties']['Fertility Rate'] = 'Fertility Rate: ' + str(filtered_df.loc[filtered_df['country_code']==country_id, 'Fertility rate, total (births per woman)'].values[0] if country_id in list(filtered_df['country_code']) else 'N/A')
+    feature['properties']['GDP per capita (current US$)'] = 'GDP per capita (current US$): ' + str(filtered_df.loc[filtered_df['country_code']==country_id, 'GDP per capita (current US$)'].values[0] if country_id in list(filtered_df['country_code']) else 'N/A')
 
 
 choropleth = folium.Choropleth(
     geo_data=geojson_data,
     name=selected_metric,
-    data=current_df,
+    data=filtered_df,
     columns=['country_code',selected_metric],
     key_on="feature.id",
     fill_color="YlOrBr",
@@ -163,7 +195,28 @@ test.add_child(
 )
 
 
-# Display the map in Streamlit
-st.components.v1.html(map._repr_html_(), width=1050, height=1000)
 
 
+#######################
+# Dashboard Main Panel
+col = st.columns((1, 4.5, 1), gap='small')
+
+with col[0]:
+    st.write()
+
+with col[1]:
+    st.markdown('##### '+ selected_metric)
+    st.markdown("""
+        <style>
+        iframe {
+            width: 100%;
+            min-height: 400px;
+            height: 100%:
+        }
+        </style>
+        """, unsafe_allow_html=True)
+    # Display the map in Streamlit
+    st.components.v1.html(map._repr_html_(), width=1050, height=1000)
+
+with col[2]:
+    st.write("column 3")
