@@ -5,3 +5,4 @@ pandas
 folium==0.18.0
 requests==2.32.3
 streamlit_folium==0.23.1
+plotly-express==0.4.1
