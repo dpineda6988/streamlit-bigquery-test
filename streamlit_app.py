@@ -228,12 +228,9 @@ test.add_child(
 
 #######################
 # Dashboard Main Panel
-col = st.columns((1, 4.5, 1), gap='small')
+col = st.columns((4.5, 1), gap='small')
 
 with col[0]:
-    st.write()
-
-with col[1]:
     st.markdown('##### '+ selected_metric)
     st.markdown("""
         <style>
@@ -247,5 +244,5 @@ with col[1]:
     # Display the map in Streamlit
     st.components.v1.html(map._repr_html_(), width=1050, height=1000)
 
-with col[2]:
+with col[1]:
     st.write("column 3")
