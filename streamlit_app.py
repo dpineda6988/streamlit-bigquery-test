@@ -183,11 +183,11 @@ match selection:
 
     case 'GDP per capita (current US$)':
         selected_metric = 'GDP per capita (current US$)'
-        hover_list = ['name','GDP per capita (current US$)', 'GNI per capita, Atlas method (current US$)','Population, total','Fertility Rate']
+        hover_list = ['name','GDP per capita (current US$)', 'GNI per capita, Atlas method (current US$)','Population, total','Fertility rate, total (births per woman)']
     
     case 'GNI per capita (current US$)':
         selected_metric = 'GNI per capita, Atlas method (current US$)'
-        hover_list = ['name', 'GNI per capita, Atlas method (current US$)', 'GDP per capita (current US$)', 'Population, total','Fertility Rate']
+        hover_list = ['name', 'GNI per capita, Atlas method (current US$)', 'GDP per capita (current US$)', 'Population, total','Fertility rate, total (births per woman)']
     
     case 'Age Dependency Ratio':
         selected_metric = 'Age dependency ratio (% of working-age population)'
@@ -220,7 +220,7 @@ choropleth = folium.Choropleth(
     nan_fill_color='white',
 ).add_to(map)
 
-test = folium.GeoJson(geojson_data, style_function=lambda feature:{"fillColor":'0000',"fillOpacity":0, "weight":0.1},zoom_on_click=True).add_to(map)
+test = folium.GeoJson(geojson_data, style_function=lambda feature:{"fillColor":'0000',"fillOpacity":0, "weight":0.1},zoom_on_click=True, width=850).add_to(map)
 test.add_child(
     folium.features.GeoJsonTooltip(hover_list, labels=False)
 )
