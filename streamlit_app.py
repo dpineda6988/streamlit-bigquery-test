@@ -294,4 +294,4 @@ else:
         st.plotly_chart(top_10_gdp_fig)
 
     with col[1]:
-        st.plotly_chart(top_10_gdp_fig)
+        st.plotly_chart(bottom_10_gdp_fig)
