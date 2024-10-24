@@ -140,40 +140,64 @@ with st.sidebar:
 
 #######################
 
-
-
-
-
-
-
-
 geojson_data = requests.get(
     "https://raw.githubusercontent.com/python-visualization/folium-example-data/main/world_countries.json"
 ).json()
-
-# Build the map
-
-map = folium.Map(location=(35,0), zoom_start=2, tiles=folium.TileLayer(tiles='cartodb positron',no_wrap=True), max_bounds=True)
-
-match selection:
-    case "Total Population":
-        selected_metric = 'Population, total'
-    case "Fertility Rate (births per woman)":
-        selected_metric = 'Fertility rate, total (births per woman)'
-    case 'GDP per capita (current US$)':
-        selected_metric = 'GDP per capita (current US$)'
-    case 'Age Dependency Ratio':
-        selected_metric = 'Age dependency ratio (% of working-age population)'
-    case 'Labor Force':
-        selected_metric = 'Labor force, total'
-    case 'Net Migration':
-        selected_metric = 'Net migration'
 
 for feature in geojson_data['features']:
     country_id = feature['id']
     feature['properties']['Fertility Rate'] = 'Fertility Rate: ' + str(filtered_df.loc[filtered_df['country_code']==country_id, 'Fertility rate, total (births per woman)'].values[0] if country_id in list(filtered_df['country_code']) else 'N/A')
     feature['properties']['GDP per capita (current US$)'] = 'GDP per capita (current US$): ' + str(filtered_df.loc[filtered_df['country_code']==country_id, 'GDP per capita (current US$)'].values[0] if country_id in list(filtered_df['country_code']) else 'N/A')
+    feature['properties']['Population, total'] = 'Population, total: ' + str(filtered_df.loc[filtered_df['country_code']==country_id, 'Population, total'].values[0] if country_id in list(filtered_df['country_code']) else 'N/A')
+    feature['properties']['Urban population (% of total population)'] = 'Urban population (% of total population): ' + str(filtered_df.loc[filtered_df['country_code']==country_id, 'Urban population (% of total population)'].values[0] if country_id in list(filtered_df['country_code']) else 'N/A')
+    feature['properties']['Rural population (% of total population)'] = 'Rural population (% of total population): ' + str(filtered_df.loc[filtered_df['country_code']==country_id, 'Rural population (% of total population)'].values[0] if country_id in list(filtered_df['country_code']) else 'N/A')
+    feature['properties']['Population, female (% of total population)'] = 'Population, female (% of total population): ' + str(filtered_df.loc[filtered_df['country_code']==country_id,'Population, female (% of total population)'].values[0] if country_id in list(filtered_df['country_code']) else 'N/A')
+    feature['properties']['Population, male (% of total population)'] = 'Population, male (% of total population): ' + str(filtered_df.loc[filtered_df['country_code']==country_id, 'Population, male (% of total population)'].values[0] if country_id in list(filtered_df['country_code']) else 'N/A')
+    feature['properties']['Labor force, total'] = 'Labor force, total: ' + str(filtered_df.loc[filtered_df['country_code']==country_id, 'Labor force, total'].values[0] if country_id in list(filtered_df['country_code']) else 'N/A')
+    feature['properties'][ 'Labor force with advanced education (% of total working-age population with advanced education)'] =  'Labor force with advanced education (% of total working-age population with advanced education): ' + str(filtered_df.loc[filtered_df['country_code']==country_id,  'Labor force with advanced education (% of total working-age population with advanced education)'].values[0] if country_id in list(filtered_df['country_code']) else 'N/A')
+    feature['properties'][ 'Labor force with basic education (% of total working-age population with basic education)'] =  'Labor force with basic education (% of total working-age population with basic education): ' + str(filtered_df.loc[filtered_df['country_code']==country_id,  'Labor force with basic education (% of total working-age population with basic education)'].values[0] if country_id in list(filtered_df['country_code']) else 'N/A')
+    feature['properties']['Labor force with intermediate education (% of total working-age population with intermediate education)'] = 'Labor force with intermediate education (% of total working-age population with intermediate education): ' + str(filtered_df.loc[filtered_df['country_code']==country_id, 'Labor force with intermediate education (% of total working-age population with intermediate education)'].values[0] if country_id in list(filtered_df['country_code']) else 'N/A')
+    feature['properties']['Age dependency ratio, old (% of working-age population)'] = 'Age dependency ratio, old (% of working-age population): ' + str(filtered_df.loc[filtered_df['country_code']==country_id, 'Age dependency ratio, old (% of working-age population)'].values[0] if country_id in list(filtered_df['country_code']) else 'N/A')
+    feature['properties']['Age dependency ratio, young (% of working-age population)'] = 'Age dependency ratio, young (% of working-age population): ' + str(filtered_df.loc[filtered_df['country_code']==country_id, 'Age dependency ratio, young (% of working-age population)'].values[0] if country_id in list(filtered_df['country_code']) else 'N/A')
+    feature['properties']['Age dependency ratio (% of working-age population)'] = 'Age dependency ratio (% of working-age population): ' + str(filtered_df.loc[filtered_df['country_code']==country_id, 'Age dependency ratio (% of working-age population)'].values[0] if country_id in list(filtered_df['country_code']) else 'N/A')
+    feature['properties']['Net migration'] = 'Net migration: ' + str(filtered_df.loc[filtered_df['country_code']==country_id, 'Net migration'].values[0] if country_id in list(filtered_df['country_code']) else 'N/A')
+    feature['properties']['Population, total'] = 'Population, total: ' + str(filtered_df.loc[filtered_df['country_code']==country_id, 'Population, total'].values[0] if country_id in list(filtered_df['country_code']) else 'N/A')
+    feature['properties']['Urban population (% of total population)'] = 'Urban population (% of total population): ' + str(filtered_df.loc[filtered_df['country_code']==country_id,'Urban population (% of total population)'].values[0] if country_id in list(filtered_df['country_code']) else 'N/A')
+    feature['properties']['Rural population (% of total population)'] = 'Rural population (% of total population): ' + str(filtered_df.loc[filtered_df['country_code']==country_id, 'Rural population (% of total population)'].values[0] if country_id in list(filtered_df['country_code']) else 'N/A')
+    feature['properties']['Population, female (% of total population)'] = 'Population, female (% of total population): ' + str(filtered_df.loc[filtered_df['country_code']==country_id, 'Population, female (% of total population)'].values[0] if country_id in list(filtered_df['country_code']) else 'N/A')
+    feature['properties']['Population, male (% of total population)'] = 'Population, male (% of total population): ' + str(filtered_df.loc[filtered_df['country_code']==country_id, 'Population, male (% of total population)'].values[0] if country_id in list(filtered_df['country_code']) else 'N/A')
 
+
+match selection:
+    case "Total Population":
+        selected_metric = 'Population, total'
+        hover_list=['name','Population, total', 'Urban population (% of total population)','Rural population (% of total population)','Population, female (% of total population)','Population, male (% of total population)',
+]
+
+    case "Fertility Rate (births per woman)":
+        selected_metric = 'Fertility rate, total (births per woman)'
+        hover_list = ['name','Fertility Rate','GDP per capita (current US$)']
+
+    case 'GDP per capita (current US$)':
+        selected_metric = 'GDP per capita (current US$)'
+        hover_list = ['name','GDP per capita (current US$)', 'Fertility Rate']
+
+    case 'Age Dependency Ratio':
+        selected_metric = 'Age dependency ratio (% of working-age population)'
+        hover_list = ['name','Age dependency ratio (% of working-age population)', 'Age dependency ratio, young (% of working-age population)','Age dependency ratio, old (% of working-age population)']
+
+    case 'Labor Force':
+        selected_metric = 'Labor force, total'
+        hover_list = ['name','Labor force, total','Labor force with advanced education (% of total working-age population with advanced education)', 'Labor force with intermediate education (% of total working-age population with intermediate education)','Labor force with basic education (% of total working-age population with basic education)']
+
+    case 'Net Migration':
+        selected_metric = 'Net migration'
+        hover_list = ['name', 'Net migration']
+
+
+# Build the map
+
+map = folium.Map(location=(35,0), zoom_start=2, tiles=folium.TileLayer(tiles='cartodb positron',no_wrap=True), max_bounds=True)
 
 choropleth = folium.Choropleth(
     geo_data=geojson_data,
@@ -191,9 +215,8 @@ choropleth = folium.Choropleth(
 
 test = folium.GeoJson(geojson_data, style_function=lambda feature:{"fillColor":'0000',"fillOpacity":0, "weight":0.1},zoom_on_click=True).add_to(map)
 test.add_child(
-    folium.features.GeoJsonTooltip(['name', 'Fertility Rate', 'GDP per capita (current US$)'], labels=False)
+    folium.features.GeoJsonTooltip(hover_list, labels=False)
 )
-
 
 
 
