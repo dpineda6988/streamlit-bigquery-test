@@ -131,7 +131,7 @@ data_df = get_data(query)
 with st.sidebar:
     st.title('Population Metrics Dashboard')
     # Create a list of the different indicators for the drop down menu
-    series_names = ['Total Population', 'Fertility Rate (births per woman)', 'GDP per capita (current US$)', 'GNI per capita (current US$)', 'Age Dependency Ratio', 'Labor Force', 'Net Migration']
+    series_names = ['Total Population', 'Fertility Rate (births per woman)', 'GDP per capita (current US$)', 'GNI per capita (current US$)', 'Age Dependency Ratio', 'Labor Force', 'Net Migration', 'Human capital index (HCI) (scale 0-1)']
 
     # Dropdown for indicator layers
     selection = st.selectbox("Select Metric", series_names)
@@ -169,6 +169,7 @@ for feature in geojson_data['features']:
     feature['properties']['Population, female (% of total population)'] = 'Population, female (% of total population): ' + str(filtered_df.loc[filtered_df['country_code']==country_id, 'Population, female (% of total population)'].values[0] if country_id in list(filtered_df['country_code']) else 'N/A')
     feature['properties']['Population, male (% of total population)'] = 'Population, male (% of total population): ' + str(filtered_df.loc[filtered_df['country_code']==country_id, 'Population, male (% of total population)'].values[0] if country_id in list(filtered_df['country_code']) else 'N/A')
     feature['properties']['GNI per capita, Atlas method (current US$)'] = 'GNI per capita (current US$): ' + str(filtered_df.loc[filtered_df['country_code']==country_id, 'GNI per capita, Atlas method (current US$)'].values[0] if country_id in list(filtered_df['country_code']) else 'N/A')
+    feature['properties']['Human capital index (HCI) (scale 0-1)'] = 'Human capital index (HCI) (scale 0-1): ' + str(filtered_df.loc[filtered_df['country_code']==country_id, 'Human capital index (HCI) (scale 0-1)'].values[0] if country_id in list(filtered_df['country_code']) else 'N/A')
 
 
 match selection:
@@ -181,6 +182,9 @@ match selection:
         selected_metric = 'Fertility rate, total (births per woman)'
         hover_list = ['name','Fertility rate, total (births per woman)','GDP per capita (current US$)', 'GNI per capita, Atlas method (current US$)','Population, total']
 
+    case "Human capital index (HCI) (scale 0-1)":
+        selected_metric = 'Human capital index (HCI) (scale 0-1)'
+        hover_list = ['name', 'Human capital index (HCI) (scale 0-1)']
     case 'GDP per capita (current US$)':
         selected_metric = 'GDP per capita (current US$)'
         hover_list = ['name','GDP per capita (current US$)', 'GNI per capita, Atlas method (current US$)','Population, total','Fertility rate, total (births per woman)']
