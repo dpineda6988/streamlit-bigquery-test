@@ -54,6 +54,7 @@ query = """
     FROM `bigquery-public-data.world_bank_wdi.indicators_data`
     WHERE indicator_name IN (
             'GDP per capita (current US$)',
+            'GNI per capita, Atlas method (current US$)',
             'Fertility rate, total (births per woman)',
             'Urban population (% of total population)',
             'Rural population (% of total population)',
@@ -129,7 +130,7 @@ data_df = get_data(query)
 with st.sidebar:
     st.title('Population Metrics Dashboard')
     # Create a list of the different indicators for the drop down menu
-    series_names = ['Total Population', 'Fertility Rate (births per woman)', 'GDP per capita (current US$)', 'Age Dependency Ratio', 'Labor Force', 'Net Migration']
+    series_names = ['Total Population', 'Fertility Rate (births per woman)', 'GDP per capita (current US$)', 'GNI per capita (current US$)', 'Age Dependency Ratio', 'Labor Force', 'Net Migration']
 
     # Dropdown for indicator layers
     selection = st.selectbox("Select Metric", series_names)
@@ -166,6 +167,7 @@ for feature in geojson_data['features']:
     feature['properties']['Rural population (% of total population)'] = 'Rural population (% of total population): ' + str(filtered_df.loc[filtered_df['country_code']==country_id, 'Rural population (% of total population)'].values[0] if country_id in list(filtered_df['country_code']) else 'N/A')
     feature['properties']['Population, female (% of total population)'] = 'Population, female (% of total population): ' + str(filtered_df.loc[filtered_df['country_code']==country_id, 'Population, female (% of total population)'].values[0] if country_id in list(filtered_df['country_code']) else 'N/A')
     feature['properties']['Population, male (% of total population)'] = 'Population, male (% of total population): ' + str(filtered_df.loc[filtered_df['country_code']==country_id, 'Population, male (% of total population)'].values[0] if country_id in list(filtered_df['country_code']) else 'N/A')
+    feature['properties']['GNI per capita, Atlas method (current US$)'] = 'GNI per capita (current US$): ' + str(filtered_df.loc[filtered_df['country_code']==country_id, 'GNI per capita, Atlas method (current US$)'].values[0] if country_id in list(filtered_df['country_code']) else 'N/A')
 
 
 match selection:
@@ -176,12 +178,16 @@ match selection:
 
     case "Fertility Rate (births per woman)":
         selected_metric = 'Fertility rate, total (births per woman)'
-        hover_list = ['name','Fertility Rate','GDP per capita (current US$)']
+        hover_list = ['name','Fertility Rate','GDP per capita (current US$)', 'GNI per capita, Atlas method (current US$)','Population, total']
 
     case 'GDP per capita (current US$)':
         selected_metric = 'GDP per capita (current US$)'
-        hover_list = ['name','GDP per capita (current US$)', 'Fertility Rate']
-
+        hover_list = ['name','GDP per capita (current US$)', 'GNI per capita, Atlas method (current US$)','Population, total','Fertility Rate']
+    
+    case 'GNI per capita (current US$)':
+        selected_metric = 'GNI per capita, Atlas method (current US$)'
+        hover_list = ['name', 'GNI per capita, Atlas method (current US$)', 'GDP per capita (current US$)', 'Population, total','Fertility Rate']
+    
     case 'Age Dependency Ratio':
         selected_metric = 'Age dependency ratio (% of working-age population)'
         hover_list = ['name','Age dependency ratio (% of working-age population)', 'Age dependency ratio, young (% of working-age population)','Age dependency ratio, old (% of working-age population)']
