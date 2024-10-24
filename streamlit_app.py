@@ -252,12 +252,12 @@ st.components.v1.html(map._repr_html_(), width=1050, height=1000)
 
 # Bar Chart - Top 10 and Bottom 10 Countries
 # Get top 10 and bottom 10 countries by GDP
-top_bottom_df = filtered_df[(filtered_df[selected_metric] > 0) & (filtered_df['country_name']!="South Asia")]
+top_bottom_df = filtered_df[(filtered_df[selected_metric] > 0)]
 top_10_gdp = top_bottom_df.nlargest(10, selected_metric)
 bottom_10_gdp = top_bottom_df.nsmallest(10, selected_metric)
 
 # Bar chart for top 10 countries by GDP in 2023
-top_10_gdp_fig = px.bar(top_10_gdp, x='country_name', y=selected_metric, labels={'GDP': 'GDP per Capita'}, 
+top_10_gdp_fig = px.bar(top_10_gdp, x='country_name', y=selected_metric, labels={'metric': 'Metric'}, 
                             title="Top 10 Countries")
 
 # Bar chart for bottom 10 countries by GDP in 2023
