@@ -141,11 +141,12 @@ with st.sidebar:
     filtered_df = data_df[data_df['year']==slider_year]
 
 #######################
-
+# Load and edit the GeoJSON for the map
 geojson_data = requests.get(
     "https://raw.githubusercontent.com/python-visualization/folium-example-data/main/world_countries.json"
 ).json()
 
+# Add additional elements/keys to the GeoJSON using the DataFrame filtered by the selected slider year
 for feature in geojson_data['features']:
     country_id = feature['id']
     feature['properties']['Fertility rate, total (births per woman)'] = 'Fertility Rate: ' + str(filtered_df.loc[filtered_df['country_code']==country_id, 'Fertility rate, total (births per woman)'].values[0] if country_id in list(filtered_df['country_code']) else 'N/A')
@@ -171,12 +172,14 @@ for feature in geojson_data['features']:
     feature['properties']['GNI per capita, Atlas method (current US$)'] = 'GNI per capita (current US$): ' + str(filtered_df.loc[filtered_df['country_code']==country_id, 'GNI per capita, Atlas method (current US$)'].values[0] if country_id in list(filtered_df['country_code']) else 'N/A')
     feature['properties']['Human capital index (HCI) (scale 0-1)'] = 'Human capital index (HCI) (scale 0-1): ' + str(filtered_df.loc[filtered_df['country_code']==country_id, 'Human capital index (HCI) (scale 0-1)'].values[0] if country_id in list(filtered_df['country_code']) else 'N/A')
 
+#######################
+# Build the main main/choropleth visual
 
+# Set GeoJSON key to find based on what is selected in the dropdown menus and determine the list of variables to include in the hover-over popup/tooltip
 match selection:
     case "Total Population":
         selected_metric = 'Population, total'
-        hover_list=['name','Population, total', 'Urban population (% of total population)','Rural population (% of total population)','Population, female (% of total population)','Population, male (% of total population)',
-]
+        hover_list=['name','Population, total', 'Urban population (% of total population)','Rural population (% of total population)','Population, female (% of total population)','Population, male (% of total population)']
 
     case "Fertility Rate (births per woman)":
         selected_metric = 'Fertility rate, total (births per woman)'
@@ -207,9 +210,9 @@ match selection:
 
 
 # Build the map
-
 map = folium.Map(location=(35,0), zoom_start=2, tiles=folium.TileLayer(tiles='cartodb positron',no_wrap=True), max_bounds=True)
 
+# Create choropleth
 choropleth = folium.Choropleth(
     geo_data=geojson_data,
     name=selected_metric,
@@ -224,15 +227,18 @@ choropleth = folium.Choropleth(
     nan_fill_color='white',
 ).add_to(map)
 
-test = folium.GeoJson(geojson_data, style_function=lambda feature:{"fillColor":'0000',"fillOpacity":0, "weight":0.1},zoom_on_click=True, width=850).add_to(map)
-test.add_child(
+# Create second layer that creates a hover-over popup/tooltip
+hover_layer = folium.GeoJson(geojson_data, style_function=lambda feature:{"fillColor":'0000',"fillOpacity":0, "weight":0.1},zoom_on_click=True, width=850).add_to(map)
+
+# Add additional child to hover_layer that defines the values to be displayed in the hover-over popup/tooltip
+hover_layer.add_child(
     folium.features.GeoJsonTooltip(hover_list, labels=False)
 )
 
 
 
 #######################
-# Dashboard Main Panel
+# Dashboard Section
 
 st.subheader(selection)
 st.markdown("""
@@ -248,9 +254,7 @@ st.markdown("""
 st.components.v1.html(map._repr_html_(), width=1050, height=1000)
 
 
-
-
-# Bar Chart - Top 10 and Bottom 10 Countries
+# Create Bar Chart - Top 10 and Bottom 10 Countries
 # Get top 10 and bottom 10 countries by GDP
 top_bottom_df = filtered_df[(filtered_df[selected_metric] > 0)]
 top_10_gdp = top_bottom_df.nlargest(10, selected_metric)
@@ -263,6 +267,8 @@ top_10_gdp_fig = px.bar(top_10_gdp, x='country_name', y=selected_metric, labels=
 # Bar chart for bottom 10 countries by GDP in 2023
 bottom_10_gdp_fig = px.bar(bottom_10_gdp, x='country_name', y=selected_metric, labels={'GDP': 'GDP per Capita'}, 
                             title="Bottom 10 Countries")
+
+# Include html to create some design responsiveness
 st.markdown("""
         <style>
         iframe {
@@ -273,8 +279,12 @@ st.markdown("""
         </style>
         """, unsafe_allow_html=True)
 
+# Create columns to hold each chart
 col = st.columns((4.5, 4), gap='small')
+
+# Display each bar chart an individual column
 with col[0]:
     st.plotly_chart(top_10_gdp_fig)
+
 with col[1]:
     st.plotly_chart(bottom_10_gdp_fig)
