@@ -30,7 +30,7 @@ credentials = service_account.Credentials.from_service_account_info(
 client = bigquery.Client(credentials=credentials)
 
 # Perform query.
-# Uses st.cache_data to only rerun when the query changes or after 10 min.
+# Uses st.cache_data to only rerun when the query changes.
 @st.cache_data()
 def get_data(query):
     query_job = client.query(query)
@@ -235,27 +235,9 @@ hover_layer.add_child(
     folium.features.GeoJsonTooltip(hover_list, labels=False)
 )
 
-
-
 #######################
-# Dashboard Section
 
-st.subheader(selection)
-st.markdown("""
-        <style>
-        iframe {
-            width: 100%;
-            min-height: 400px;
-            height: 100%:
-        }
-        </style>
-        """, unsafe_allow_html=True)
-# Display the map in Streamlit
-st.components.v1.html(map._repr_html_(), width=1050, height=1000)
-
-
-# Create Bar Chart - Top 10 and Bottom 10 Countries
-# Get top 10 and bottom 10 countries by GDP
+# Get top 10 and bottom 10 countries by GDP and filter out any values with values of zero
 top_bottom_df = filtered_df[(filtered_df[selected_metric] > 0)]
 top_10_gdp = top_bottom_df.nlargest(10, selected_metric)
 bottom_10_gdp = top_bottom_df.nsmallest(10, selected_metric)
@@ -265,26 +247,51 @@ top_10_gdp_fig = px.bar(top_10_gdp, x='country_name', y=selected_metric, labels=
                             title="Top 10 Countries")
 
 # Bar chart for bottom 10 countries by GDP in 2023
-bottom_10_gdp_fig = px.bar(bottom_10_gdp, x='country_name', y=selected_metric, labels={'GDP': 'GDP per Capita'}, 
+bottom_10_gdp_fig = px.bar(bottom_10_gdp, x='country_name', y=selected_metric, labels={'metric': 'Metric'}, 
                             title="Bottom 10 Countries")
 
-# Include html to create some design responsiveness
-st.markdown("""
-        <style>
-        iframe {
-            width: 100%;
-            min-height: 400px;
-            height: 100%:
-        }
-        </style>
-        """, unsafe_allow_html=True)
+#######################
+# Dashboard Section
 
-# Create columns to hold each chart
-col = st.columns((4.5, 4), gap='small')
+# If there is not data for the selected metric in a given year (top_bottom_df is empty) then print an error message and list the years where data is available
+if top_bottom_df.empty:
+    st.subheader(f"Data for {selection} is not available for this year.  Please select one of the following years:")
+    years = data_df[data_df[selected_metric] > 0]['year'].unique()
+    years_string = ", ".join(str(x) for x in years)
+    st.subheader(years_string)
+else:
+    st.subheader(selection)
+    st.markdown("""
+            <style>
+            iframe {
+                width: 100%;
+                min-height: 400px;
+                height: 100%:
+            }
+            </style>
+            """, unsafe_allow_html=True)
+    # Display the map in Streamlit
+    st.components.v1.html(map._repr_html_(), width=1050, height=1000)
 
-# Display each bar chart an individual column
-with col[0]:
-    st.plotly_chart(top_10_gdp_fig)
 
-with col[1]:
-    st.plotly_chart(bottom_10_gdp_fig)
+    # Create Bar Chart - Top 10 and Bottom 10 Countries
+    # Include html to create some design responsiveness
+    st.markdown("""
+            <style>
+            iframe {
+                width: 100%;
+                min-height: 400px;
+                height: 100%:
+            }
+            </style>
+            """, unsafe_allow_html=True)
+
+    # Create columns to hold each chart
+    col = st.columns((4.5, 4), gap='small')
+
+    # Display each bar chart an individual column
+    with col[0]:
+        st.plotly_chart(top_10_gdp_fig)
+
+    with col[1]:
+        st.plotly_chart(top_10_gdp_fig)
