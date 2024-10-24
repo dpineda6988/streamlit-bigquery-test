@@ -147,7 +147,7 @@ geojson_data = requests.get(
 
 for feature in geojson_data['features']:
     country_id = feature['id']
-    feature['properties']['Fertility Rate'] = 'Fertility Rate: ' + str(filtered_df.loc[filtered_df['country_code']==country_id, 'Fertility rate, total (births per woman)'].values[0] if country_id in list(filtered_df['country_code']) else 'N/A')
+    feature['properties']['Fertility rate, total (births per woman)'] = 'Fertility Rate: ' + str(filtered_df.loc[filtered_df['country_code']==country_id, 'Fertility rate, total (births per woman)'].values[0] if country_id in list(filtered_df['country_code']) else 'N/A')
     feature['properties']['GDP per capita (current US$)'] = 'GDP per capita (current US$): ' + str(filtered_df.loc[filtered_df['country_code']==country_id, 'GDP per capita (current US$)'].values[0] if country_id in list(filtered_df['country_code']) else 'N/A')
     feature['properties']['Population, total'] = 'Population, total: ' + str(filtered_df.loc[filtered_df['country_code']==country_id, 'Population, total'].values[0] if country_id in list(filtered_df['country_code']) else 'N/A')
     feature['properties']['Urban population (% of total population)'] = 'Urban population (% of total population): ' + str(filtered_df.loc[filtered_df['country_code']==country_id, 'Urban population (% of total population)'].values[0] if country_id in list(filtered_df['country_code']) else 'N/A')
@@ -178,7 +178,7 @@ match selection:
 
     case "Fertility Rate (births per woman)":
         selected_metric = 'Fertility rate, total (births per woman)'
-        hover_list = ['name','Fertility Rate','GDP per capita (current US$)', 'GNI per capita, Atlas method (current US$)','Population, total']
+        hover_list = ['name','Fertility rate, total (births per woman)','GDP per capita (current US$)', 'GNI per capita, Atlas method (current US$)','Population, total']
 
     case 'GDP per capita (current US$)':
         selected_metric = 'GDP per capita (current US$)'
